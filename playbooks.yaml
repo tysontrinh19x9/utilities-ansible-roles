@@ -1,0 +1,340 @@
+#- hosts: all
+#  gather_facts: True
+#  vars_files:
+#    - variable.yml
+#  collections:
+#     - community.mongodb
+#  roles:
+#    - role: swapon
+#      become: true
+#      become_user: root
+#      swap_file_path: /swapfile
+#      swap_file_size_mb: '8096'
+#      swap_swappiness: '60'
+#      swap_file_state: present
+#    - role: nvm
+#      nodejs_version: "{{ dev.node_version }}"
+#      default: true
+#      become: true
+#      become_user: ubuntu
+#    - role: git
+#      git_install_from_source: true
+#      git_install_from_source_force_update: true
+#      become: true
+#      become_user: root
+#    - role: pm2
+#      become: true
+#      become_user: ubuntu
+#      nvm_bin_path: "{{ ansible_env.HOME }}/.nvm/versions/node/v{{ dev.node_version }}/bin"
+#    - role: yarn
+#      become: true
+#      become_user: root
+#    - role: redis
+#      become: true
+#      become_user: root
+#    - role: mongodb_linux
+#      become: true
+#      become_user: root
+#    - role: mongodb_repository
+#      become: true
+#      become_user: root
+#      mongodb_version: "5.0"
+#    - role: mongodb_install
+#      become: true
+#      become_user: root
+#      specific_mongodb_version: 5.0.14
+#      mongodb_hold_packages: "HOLD"
+#    - role: mongodb_mongod
+#      become: true
+#      become_user: root
+#      replicaset: false
+#      sharding: false
+#    - role: gitlab-runner
+#      become: true
+#      become_user: root
+#      gitlab_runner_runtime_owner: ubuntu
+#      gitlab_runner_runtime_group: ubuntu
+#      gitlab_runner_restart_state: reloaded
+#      gitlab_runner_timeout_stop_seconds: 720
+#      gitlab_runner_concurrent: 2
+#
+#
+#
+#- name: Clone source code backend
+#  hosts: dev
+#  vars_files:
+#    - variable.yml
+#  tasks:
+#    - name: Check directory is exists or not
+#      stat:
+#        path: "{{ dev.repository.backend.directory }}"
+#      become: true
+#      become_user: root
+#      register: backend_path
+#    - name: Create backend directory if not exists
+#      file:
+#        path: "{{ dev.repository.backend.directory }}"
+#        owner: "{{ dev.os_user }}"
+#        group: "{{ dev.os_user }}"
+#        mode: 0775
+#        state: directory
+#      become: true
+#      become_user: root
+#      when: not backend_path.stat.exists
+#    - name: clone source code from repository
+#      git:
+#        repo: "{{ dev.repository.backend.link }}"
+#        dest: "{{ dev.repository.backend.directory }}"
+#        single_branch: false
+#        version: "{{ dev.repository.backend.uat_branch }}"
+#      become: true
+#      become_user: ubuntu
+#
+#- name: Clone source code backend_admin
+#  hosts: dev
+#  vars_files:
+#    - variable.yml
+#  tasks:
+#    - name: Check backend_admin directory is exists or not
+#      stat:
+#        path: "{{ dev.repository.backend_admin.directory }}"
+#      become: true
+#      become_user: root
+#      register: backend_admin_path
+#    - name: Create backend_admin directory if not exists
+#      file:
+#        path: "{{ dev.repository.backend_admin.directory }}"
+#        owner: "{{ dev.os_user }}"
+#        group: "{{ dev.os_user }}"
+#        mode: 0775
+#        state: directory
+#      become: true
+#      become_user: root
+#      when: not backend_admin_path.stat.exists
+#    - name: clone source code from backend_admin repository
+#      git:
+#        repo: "{{ dev.repository.backend_admin.link }}"
+#        dest: "{{ dev.repository.backend_admin.directory }}"
+#        single_branch: false
+#        version: "{{ dev.repository.backend_admin.uat_branch }}"
+#      become: true
+#      become_user: ubuntu
+#
+#- name: Clone source code webadmin
+#  hosts: dev
+#  vars_files:
+#    - variable.yml
+#  tasks:
+#    - name: Check webadmin directory is exists or not
+#      stat:
+#        path: "{{ dev.repository.webadmin.directory }}"
+#      become: true
+#      become_user: root
+#      register: webadmin_path
+#    - name: Create webadmin directory if not exists
+#      file:
+#        path: "{{ dev.repository.webadmin.directory }}"
+#        owner: "{{ dev.os_user }}"
+#        group: "{{ dev.os_user }}"
+#        mode: 0775
+#        state: directory
+#      become: true
+#      become_user: root
+#      when: not webadmin_path.stat.exists
+#    - name: clone source code from webadmin repository
+#      git:
+#        repo: "{{ dev.repository.webadmin.link }}"
+#        dest: "{{ dev.repository.webadmin.directory }}"
+#        single_branch: false
+#        version: "{{ dev.repository.webadmin.uat_branch }}"
+#      become: true
+#      become_user: ubuntu
+#
+#- name: Clone source code notifications
+#  hosts: dev
+#  vars_files:
+#    - variable.yml
+#  tasks:
+#    - name: Check backend_notification directory is exists or not
+#      stat:
+#        path: "{{ dev.repository.backend_notification.directory }}"
+#      become: true
+#      become_user: root
+#      register: backend_notification_path
+#    - name: Create backend_notification directory if not exists
+#      file:
+#        path: "{{ dev.repository.backend_notification.directory }}"
+#        owner: "{{ dev.os_user }}"
+#        group: "{{ dev.os_user }}"
+#        mode: 0775
+#        state: directory
+#      become: true
+#      become_user: root
+#      when: not backend_notification_path.stat.exists
+#    - name: clone source code from backend_notification repository
+#      git:
+#        repo: "{{ dev.repository.backend_notification.link }}"
+#        dest: "{{ dev.repository.backend_notification.directory }}"
+#        single_branch: false
+#        version: "{{ dev.repository.backend_notification.uat_branch }}"
+#      become: true
+#      become_user: ubuntu
+#
+#- name: Clone source code backend
+#  hosts: uat
+#  vars_files:
+#    - variable.yml
+#  tasks:
+#    - name: Check directory is exists or not
+#      stat:
+#        path: "{{ dev.repository.backend.directory }}"
+#      become: true
+#      become_user: root
+#      register: backend_path
+#    - name: Create backend directory if not exists
+#      file:
+#        path: "{{ dev.repository.backend.directory }}"
+#        owner: "{{ dev.os_user }}"
+#        group: "{{ dev.os_user }}"
+#        mode: 0775
+#        state: directory
+#      become: true
+#      become_user: root
+#      when: not backend_path.stat.exists
+#    - name: clone source code from repository
+#      git:
+#        repo: "{{ dev.repository.backend.link }}"
+#        dest: "{{ dev.repository.backend.directory }}"
+#        single_branch: false
+#        version: "{{ dev.repository.backend.uat_branch }}"
+#      become: true
+#      become_user: ubuntu
+#
+#- name: Clone source code backend_admin
+#  hosts: uat
+#  vars_files:
+#    - variable.yml
+#  tasks:
+#    - name: Check backend_admin directory is exists or not
+#      stat:
+#        path: "{{ dev.repository.backend_admin.directory }}"
+#      become: true
+#      become_user: root
+#      register: backend_admin_path
+#    - name: Create backend_admin directory if not exists
+#      file:
+#        path: "{{ dev.repository.backend_admin.directory }}"
+#        owner: "{{ dev.os_user }}"
+#        group: "{{ dev.os_user }}"
+#        mode: 0775
+#        state: directory
+#      become: true
+#      become_user: root
+#      when: not backend_admin_path.stat.exists
+#    - name: clone source code from backend_admin repository
+#      git:
+#        repo: "{{ dev.repository.backend_admin.link }}"
+#        dest: "{{ dev.repository.backend_admin.directory }}"
+#        single_branch: false
+#        version: "{{ dev.repository.backend_admin.uat_branch }}"
+#      become: true
+#      become_user: ubuntu
+#
+#- name: Clone source code webadmin
+#  hosts: uat
+#  vars_files:
+#    - variable.yml
+#  tasks:
+#    - name: Check webadmin directory is exists or not
+#      stat:
+#        path: "{{ dev.repository.webadmin.directory }}"
+#      become: true
+#      become_user: root
+#      register: webadmin_path
+#    - name: Create webadmin directory if not exists
+#      file:
+#        path: "{{ dev.repository.webadmin.directory }}"
+#        owner: "{{ dev.os_user }}"
+#        group: "{{ dev.os_user }}"
+#        mode: 0775
+#        state: directory
+#      become: true
+#      become_user: root
+#      when: not webadmin_path.stat.exists
+#    - name: clone source code from webadmin repository
+#      git:
+#        repo: "{{ dev.repository.webadmin.link }}"
+#        dest: "{{ dev.repository.webadmin.directory }}"
+#        single_branch: false
+#        version: "{{ dev.repository.webadmin.uat_branch }}"
+#      become: true
+#      become_user: ubuntu
+#
+#- name: Clone source code notifications
+#  hosts: uat
+#  vars_files:
+#    - variable.yml
+#  tasks:
+#    - name: Check backend_notification directory is exists or not
+#      stat:
+#        path: "{{ dev.repository.backend_notification.directory }}"
+#      become: true
+#      become_user: root
+#      register: backend_notification_path
+#    - name: Create backend_notification directory if not exists
+#      file:
+#        path: "{{ dev.repository.backend_notification.directory }}"
+#        owner: "{{ dev.os_user }}"
+#        group: "{{ dev.os_user }}"
+#        mode: 0775
+#        state: directory
+#      become: true
+#      become_user: root
+#      when: not backend_notification_path.stat.exists
+#    - name: clone source code from backend_notification repository
+#      git:
+#        repo: "{{ dev.repository.backend_notification.link }}"
+#        dest: "{{ dev.repository.backend_notification.directory }}"
+#        single_branch: false
+#        version: "{{ dev.repository.backend_notification.uat_branch }}"
+#      become: true
+#      become_user: ubuntu
+#
+#- name: Install Nginx
+#  hosts: all
+#  tasks:
+#    - name: install NGINX
+#      include_role:
+#        name: nginx
+#        apply:
+#          become: true
+#
+#- name: Import mongodb_auth role
+#  hosts: all
+#  collections:
+#    - community.mongodb
+#  tasks:
+#    - name: Import mongodb_auth role
+#      include_role:
+#        name: mongodb_auth
+#        apply:
+#          become: true
+#      vars:
+#        mongod_host: "127.0.0.1"
+#        mongod_port: "27017"
+#        mongodb_admin_db: admin
+#        mongodb_admin_user: admin
+#        mongodb_admin_pwd: "9Jkr6O30KdtgYn2Y"
+#    - name: add normal user into rlf db
+#      mongodb_user:
+#        state: present
+#        update_password: on_create
+#        name: backend
+#        password: "VbXNOxH5gR0raU9v"
+#        database: "rlf"
+#        roles: "readWrite"
+#        login_host: 127.0.0.1
+#        login_port: "27017" # silence implicit int->str conversion warning
+#        login_user: "admin"
+#        login_password: "9Jkr6O30KdtgYn2Y"
+#        login_database: admin

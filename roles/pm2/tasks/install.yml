@@ -1,0 +1,29 @@
+---
+
+- name: Install packages normally
+  npm:
+    name: pm2
+    executable: "{{ npm_path | default(omit) }}"
+    global: yes
+    version: "{{ pm2_version | default(omit) }}"
+  notify: update pm2
+  when: nvm_bin_path is undefined
+
+- name: Check pm2 exists into nvm or not
+  command: pm2 --version
+  failed_when: false
+  register: pm2_command_status
+  changed_when: false
+  environment:
+    PATH: "{{ nvm_bin_path }}:{{ ansible_env.PATH }}"
+  when: nvm_bin_path is defined
+
+- name: echo pm2_command_status
+  debug:
+    msg: "{{ pm2_command_status.rc }} - {{ pm2_command_status.stdout }}"
+
+- name: Install packages use nvm
+  shell: npm install -g pm2
+  environment:
+    PATH: "{{ nvm_bin_path }}:{{ ansible_env.PATH }}"
+  when: pm2_command_status.rc != 0 and nvm_bin_path is defined
